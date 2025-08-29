@@ -1,5 +1,5 @@
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Alert,
   Image,
@@ -40,8 +40,6 @@ const ServiceRequestDetailsScreen: React.FC = () => {
   const { token } = useAuth();
   const navigation = useNavigation<any>();
   const route = useRoute<RouteProp<RootStackParamList, 'ServiceRequestDetails'>>();
-  
-  const signatureRef = useRef<any>(null);
 
   let serviceRequest: ServiceRequest;
   try {
@@ -68,6 +66,7 @@ const ServiceRequestDetailsScreen: React.FC = () => {
   const [videoPath, setVideoPath] = useState(serviceRequest.videoFeedback || '');
   const [signature, setSignature] = useState(serviceRequest.signature || '');
   const [isDrawing, setIsDrawing] = useState(false);
+  const [signatureKey, setSignatureKey] = useState(1);
 
   const statusOptions = [
     'Pending',
@@ -87,10 +86,8 @@ const ServiceRequestDetailsScreen: React.FC = () => {
     setSignature(sig); // base64 string
   };
   const handleClear = () => {
-    if (signatureRef.current) {
-      signatureRef.current.clearSignature();
-    }
     setSignature('');
+    setSignatureKey(prevKey => prevKey + 1);
   };
   const handleBegin = () => {
     console.log('Signature drawing started');
@@ -251,6 +248,7 @@ const ServiceRequestDetailsScreen: React.FC = () => {
   
   <View style={styles.signatureContainer}>
     <Signature
+      key={signatureKey}
       onOK={handleSignature}
       onClear={handleClear}
       onBegin={handleBegin}
