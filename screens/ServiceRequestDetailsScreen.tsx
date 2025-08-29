@@ -1,7 +1,8 @@
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Alert,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -9,10 +10,10 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import Signature from 'react-native-signature-canvas';
 import Toast from 'react-native-toast-message';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-// import SignatureCapture from 'react-native-signature-capture';
 
 interface ServiceRequest {
   _id: string;
@@ -34,13 +35,14 @@ type RootStackParamList = {
   ServiceRequestDetails: { serviceRequest: ServiceRequest };
 };
 
-
 const ServiceRequestDetailsScreen: React.FC = () => {
   const { colors } = useTheme();
   const { token } = useAuth();
   const navigation = useNavigation<any>();
   const route = useRoute<RouteProp<RootStackParamList, 'ServiceRequestDetails'>>();
   
+  const signatureRef = useRef<any>(null);
+
   let serviceRequest: ServiceRequest;
   try {
     serviceRequest = route.params?.serviceRequest || {
@@ -62,12 +64,10 @@ const ServiceRequestDetailsScreen: React.FC = () => {
 
   const [comments, setComments] = useState(serviceRequest.comments || '');
   const [status, setStatus] = useState(serviceRequest.status);
-  const [signature, setSignature] = useState(serviceRequest.signature || '');
-  const [isRecordingAudio, setIsRecordingAudio] = useState(false);
-  const [audioPath, setAudioPath] = useState(serviceRequest.audioFeedback || '');
   const [isRecordingVideo, setIsRecordingVideo] = useState(false);
   const [videoPath, setVideoPath] = useState(serviceRequest.videoFeedback || '');
-  // const signatureRef = useRef<SignatureCapture>(null);
+  const [signature, setSignature] = useState(serviceRequest.signature || '');
+  const [isDrawing, setIsDrawing] = useState(false);
 
   const statusOptions = [
     'Pending',
@@ -77,28 +77,38 @@ const ServiceRequestDetailsScreen: React.FC = () => {
     'On Hold'
   ];
 
-  const handleSignatureSave = (result: any) => {
-    setSignature(result.encoded);
-  };
-
-  // const handleSignatureClear = () => {
-  //   signatureRef.current?.resetImage();
-  //   setSignature('');
-  // };
-
-
   const handleVideoRecording = () => {
     setIsRecordingVideo(!isRecordingVideo);
     Alert.alert('Video Recording', isRecordingVideo ? 'Video recording stopped' : 'Video recording started');
+  };
+
+  // Signature callbacks
+  const handleSignature = (sig: string) => {
+    setSignature(sig); // base64 string
+  };
+  const handleClear = () => {
+    if (signatureRef.current) {
+      signatureRef.current.clearSignature();
+    }
+    setSignature('');
+  };
+  const handleBegin = () => {
+    console.log('Signature drawing started');
+    setIsDrawing(true); // Disable scrolling while drawing
+    // Could add visual feedback here if needed
+  };
+  const handleEnd = () => {
+    console.log('Signature drawing ended');
+    setIsDrawing(false); // Re-enable scrolling after drawing
+    // Could add visual feedback here if needed
   };
 
   const handleSubmit = async () => {
     const updateData = {
       comments,
       status,
-      signature,
-      audioFeedback: audioPath,
       videoFeedback: videoPath,
+      signature, // include signature
     };
 
     if (!serviceRequest._id) {
@@ -111,7 +121,7 @@ const ServiceRequestDetailsScreen: React.FC = () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Assuming token is available
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(updateData),
       });
@@ -123,7 +133,7 @@ const ServiceRequestDetailsScreen: React.FC = () => {
           type: 'success',
           text1: 'Service request updated successfully!',
         });
-        navigation.navigate('Home'); // Redirect to the list page
+        navigation.navigate('Home'); 
       } else if (response.status === 403) {
         Toast.show({
           type: 'error',
@@ -139,7 +149,10 @@ const ServiceRequestDetailsScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+    <ScrollView 
+      style={[styles.container, { backgroundColor: colors.background }]}
+      scrollEnabled={!isDrawing} // Disable scrolling while drawing signature
+    >
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Service Request Details</Text>
         
@@ -182,6 +195,7 @@ const ServiceRequestDetailsScreen: React.FC = () => {
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Update Service Request</Text>
         
+        {/* Status Options */}
         <View style={styles.inputGroup}>
           <Text style={[styles.label, { color: colors.text }]}>Status:</Text>
           <View style={styles.statusContainer}>
@@ -209,6 +223,7 @@ const ServiceRequestDetailsScreen: React.FC = () => {
           </View>
         </View>
 
+        {/* Comments */}
         <View style={styles.inputGroup}>
           <Text style={[styles.label, { color: colors.text }]}>Comments:</Text>
           <TextInput
@@ -229,39 +244,83 @@ const ServiceRequestDetailsScreen: React.FC = () => {
           />
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={[styles.label, { color: colors.text }]}>Signature:</Text>
-          <View style={styles.signatureContainer}>
-            {/* <SignatureCapture
-              ref={signatureRef}
-              style={styles.signaturePad}
-              onSaveEvent={handleSignatureSave}
-              saveImageFileInExtStorage={false}
-              showNativeButtons={false}
-              showTitleLabel={false}
-              backgroundColor="#ffffff"
-              strokeColor="#000000"
-              minStrokeWidth={4}
-              maxStrokeWidth={4}
-            /> */}
-            <View style={styles.signatureButtons}>
-              {/* <TouchableOpacity
-                style={[styles.signatureButton, { backgroundColor: colors.primary }]}
-                onPress={() => signatureRef.current?.saveImage()}
-              >
-                <Text style={styles.buttonText}>Save Signature</Text>
-              </TouchableOpacity> */}
-              {/* <TouchableOpacity
-                style={[styles.signatureButton, { backgroundColor: colors.error }]}
-                onPress={handleSignatureClear}
-              >
-                <Text style={styles.buttonText}>Clear</Text>
-              </TouchableOpacity> */}
-            </View>
-          </View>
-          {signature && <Text style={styles.mediaStatus}>Signature captured</Text>}
-        </View>
+        {/* Signature Pad */}
+{/* Signature Pad */}
+<View style={styles.inputGroup}>
+  <Text style={[styles.label, { color: colors.text }]}>Signature:</Text>
+  
+  <View style={styles.signatureContainer}>
+    <Signature
+      onOK={handleSignature}
+      onClear={handleClear}
+      onBegin={handleBegin}
+      onEnd={handleEnd}
+      descriptionText="Sign above"
+      clearText="Clear"
+      confirmText="Save"
+      penColor="#000"   // black pen for better visibility
+      dotSize={2}       // increased for smoother line continuity
+      minWidth={2.0}    // slightly increased minimum width
+      maxWidth={3.5}    // slightly increased maximum width
+      webStyle={`
+        .m-signature-pad {
+          box-shadow: none; 
+          border: none; 
+        }
+        .m-signature-pad--body {
+          border: none;
+        }
+        .m-signature-pad--footer {
+          display: flex; 
+          justify-content: space-between;
+        }
+        body,html { width: 100%; height: 100%; margin:0; }
+        canvas {
+          border-radius: 8px;
+          border: 1px solid #ccc;
+          touch-action: none;   /* important for smoothness */
+          will-change: transform; /* hardware acceleration */
+          -webkit-transform: translateZ(0); /* iOS smooth rendering */
+          transform: translateZ(0); /* hardware acceleration */
+        }
+      `}
+      autoClear={false}
+    />
+  </View>
 
+  <TouchableOpacity
+    onPress={handleClear}
+    style={{
+      backgroundColor: colors.error,
+      padding: 8,
+      borderRadius: 4,
+      marginTop: 8,
+      alignSelf: 'flex-start',
+    }}
+  >
+    <Text style={{ color: '#fff', fontSize: 12 }}>Clear Signature</Text>
+  </TouchableOpacity>
+
+  {signature ? (
+    <View style={{ marginTop: 10 }}>
+      <Text style={{ color: colors.text }}>Preview:</Text>
+      <Image
+        source={{ uri: signature }}
+        style={{
+          width: '100%',
+          height: 150,
+          resizeMode: 'contain',
+          borderWidth: 1,
+          borderColor: '#ccc'
+        }}
+      />
+    </View>
+  ) : null}
+</View>
+
+
+
+        {/* Video Feedback */}
         <View style={styles.inputGroup}>
           <Text style={[styles.label, { color: colors.text }]}>Video Feedback:</Text>
           <TouchableOpacity
@@ -278,6 +337,7 @@ const ServiceRequestDetailsScreen: React.FC = () => {
           {videoPath && <Text style={styles.mediaStatus}>Video recorded: {videoPath}</Text>}
         </View>
 
+        {/* Submit */}
         <TouchableOpacity
           style={[
             styles.submitButton,
@@ -293,18 +353,9 @@ const ServiceRequestDetailsScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
+  container: { flex: 1, padding: 16 },
+  section: { marginBottom: 24 },
+  sectionTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 16 },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -313,21 +364,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
     borderRadius: 8,
   },
-  label: {
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
-  value: {
-    fontSize: 14,
-  },
-  inputGroup: {
-    marginBottom: 16,
-  },
-  statusContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
+  label: { fontWeight: 'bold', fontSize: 14 },
+  value: { fontSize: 14 },
+  inputGroup: { marginBottom: 16 },
+  statusContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   statusOption: {
     padding: 8,
     borderWidth: 1,
@@ -335,16 +375,9 @@ const styles = StyleSheet.create({
     minWidth: 100,
     alignItems: 'center',
   },
-  statusOptionSelected: {
-    backgroundColor: '#007bff',
-  },
-  statusText: {
-    fontSize: 12,
-  },
-  statusTextSelected: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
+  statusOptionSelected: { backgroundColor: '#007bff' },
+  statusText: { fontSize: 12 },
+  statusTextSelected: { color: '#fff', fontWeight: 'bold' },
   textInput: {
     borderWidth: 1,
     borderRadius: 8,
@@ -357,49 +390,27 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#dee2e6',
     borderRadius: 8,
-    marginBottom: 8,
+    overflow: 'hidden',
+    height: 300,   // tall enough
+    width: '100%',
   },
-  signaturePad: {
-    height: 200,
-    backgroundColor: '#ffffff',
-  },
-  signatureButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    padding: 8,
-  },
-  signatureButton: {
-    padding: 8,
-    borderRadius: 6,
-    minWidth: 100,
-    alignItems: 'center',
-  },
+  
+  
   mediaButton: {
     padding: 12,
     borderRadius: 8,
     alignItems: 'center',
     marginBottom: 8,
   },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  mediaStatus: {
-    fontSize: 12,
-    color: '#28a745',
-    fontStyle: 'italic',
-  },
+  buttonText: { color: '#fff', fontWeight: 'bold' },
+  mediaStatus: { fontSize: 12, color: '#28a745', fontStyle: 'italic' },
   submitButton: {
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 16,
   },
-  submitButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
+  submitButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 });
 
 export default ServiceRequestDetailsScreen;
