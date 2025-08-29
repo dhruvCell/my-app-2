@@ -83,6 +83,7 @@ const ServiceRequestDetailsScreen: React.FC = () => {
 
   // Signature callbacks
   const handleSignature = (sig: string) => {
+    console.log('Signature captured:', sig ? 'Base64 string received' : 'Empty signature');
     setSignature(sig); // base64 string
   };
   const handleClear = () => {
@@ -101,6 +102,7 @@ const ServiceRequestDetailsScreen: React.FC = () => {
   };
 
   const handleSubmit = async () => {
+    console.log('Submitting signature:', signature ? 'Signature exists' : 'No signature');
     const updateData = {
       comments,
       status,
@@ -264,13 +266,28 @@ const ServiceRequestDetailsScreen: React.FC = () => {
         .m-signature-pad {
           box-shadow: none; 
           border: none; 
+          height: 100%;
         }
         .m-signature-pad--body {
           border: none;
+          height: 80%;
         }
         .m-signature-pad--footer {
-          display: flex; 
+          display: flex !important; 
           justify-content: space-between;
+          padding: 8px;
+          height: 20%;
+          background-color: #f8f9fa;
+        }
+        .m-signature-pad--footer button {
+          padding: 8px 16px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          background-color: white;
+          cursor: pointer;
+        }
+        .m-signature-pad--footer button:hover {
+          background-color: #e9ecef;
         }
         body,html { width: 100%; height: 100%; margin:0; }
         canvas {
