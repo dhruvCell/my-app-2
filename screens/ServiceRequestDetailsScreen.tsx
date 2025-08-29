@@ -14,6 +14,62 @@ import Signature from 'react-native-signature-canvas';
 import Toast from 'react-native-toast-message';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { BorderRadius, FontSizes, Spacing } from '../styles/theme';
+
+const signatureWebStyle = `
+.m-signature-pad {
+  box-shadow: none; 
+  border: none; 
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+.m-signature-pad--body {
+  border: none;
+  height: 80%;
+}
+.m-signature-pad--footer {
+  display: flex !important; 
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  
+  height: 20%;
+  background-color: #f8f9fa;
+  margin-left: -3rem;
+}
+.m-signature-pad--footer button {
+  padding: 8px 24px;
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.m-signature-pad--footer button:first-child {
+  background-color: #dc3545;
+  color: white;
+}
+.m-signature-pad--footer button:first-child:hover {
+  background-color: #c82333;
+}
+.m-signature-pad--footer button:last-child {
+  background-color: #28a745;
+  color: white;
+}
+.m-signature-pad--footer button:last-child:hover {
+  background-color: #218838;
+}
+body,html { width: 100%; height: 100%; margin:0; }
+canvas {
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  touch-action: none;
+  will-change: transform;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+`;
 
 interface ServiceRequest {
   _id: string;
@@ -258,62 +314,11 @@ const ServiceRequestDetailsScreen: React.FC = () => {
       descriptionText="Sign above"
       clearText="Clear"
       confirmText="Save"
-      penColor="#000"   // black pen for better visibility
-      dotSize={2}       // increased for smoother line continuity
-      minWidth={2.0}    // slightly increased minimum width
-      maxWidth={3.5}    // slightly increased maximum width
-      webStyle={`
-        .m-signature-pad {
-          box-shadow: none; 
-          border: none; 
-          height: 100%;
-          margin: 0;
-          padding: 0;
-        }
-        .m-signature-pad--body {
-          border: none;
-          height: 80%;
-        }
-        .m-signature-pad--footer {
-          display: flex !important; 
-          justify-content: center;
-          align-items: center;
-          gap: 20px;
-          padding: 1rem;
-          height: 20%;
-          background-color: #f8f9fa;
-          margin-left: -3.5rem;
-        }
-        .m-signature-pad--footer button {
-          padding: 10px 20px;
-          border: none;
-          border-radius: 6px;
-          font-weight: bold;
-          cursor: pointer;
-          transition: background-color 0.2s ease;
-        }
-        .m-signature-pad--footer button:first-child {
-          background-color: #dc3545;
-          color: white;
-        }
-        .m-signature-pad--footer button:first-child:hover {
-          background-color: #c82333;
-        }
-        .m-signature-pad--footer button:last-child {
-          background-color: #28a745;
-          color: white;
-        }
-        .m-signature-pad--footer button:last-child:hover {
-        body,html { width: 100%; height: 100%; margin:0; }
-        canvas {
-          border-radius: 8px;
-          border: 1px solid #ccc;
-          touch-action: none;   /* important for smoothness */
-          will-change: transform; /* hardware acceleration */
-          -webkit-transform: translateZ(0); /* iOS smooth rendering */
-          transform: translateZ(0); /* hardware acceleration */
-        }
-      `}
+      penColor="#000"
+      dotSize={2}
+      minWidth={2.0}
+      maxWidth={3.5}
+      webStyle={signatureWebStyle}
       autoClear={false}
     />
   </View>
@@ -321,7 +326,7 @@ const ServiceRequestDetailsScreen: React.FC = () => {
   
 
   {signature ? (
-    <View style={{ marginTop: 10 }}>
+    <View style={{ marginTop: Spacing.sm }}>
       <Text style={{ color: colors.text }}>Preview:</Text>
       <Image
         source={{ uri: signature }}
@@ -330,7 +335,8 @@ const ServiceRequestDetailsScreen: React.FC = () => {
           height: 150,
           resizeMode: 'contain',
           borderWidth: 1,
-          borderColor: '#ccc'
+          borderColor: colors.border,
+          borderRadius: BorderRadius.md,
         }}
       />
     </View>
@@ -372,64 +378,62 @@ const ServiceRequestDetailsScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  section: { marginBottom: 24 },
-  sectionTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 16 },
+  container: { flex: 1, padding: Spacing.md },
+  section: { marginBottom: Spacing.xl },
+  sectionTitle: { fontSize: FontSizes.xl, fontWeight: 'bold', marginBottom: Spacing.md },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 8,
-    padding: 12,
+    marginBottom: Spacing.sm,
+    padding: Spacing.md,
     backgroundColor: '#f8f9fa',
-    borderRadius: 8,
+    borderRadius: BorderRadius.md,
   },
-  label: { fontWeight: 'bold', fontSize: 14 },
-  value: { fontSize: 14 },
-  inputGroup: { marginBottom: 16 },
-  statusContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  label: { fontWeight: 'bold', fontSize: FontSizes.sm },
+  value: { fontSize: FontSizes.sm },
+  inputGroup: { marginBottom: Spacing.md },
+  statusContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
   statusOption: {
-    padding: 8,
+    padding: Spacing.sm,
     borderWidth: 1,
-    borderRadius: 6,
+    borderRadius: BorderRadius.sm,
     minWidth: 100,
     alignItems: 'center',
   },
   statusOptionSelected: { backgroundColor: '#007bff' },
-  statusText: { fontSize: 12 },
+  statusText: { fontSize: FontSizes.xs },
   statusTextSelected: { color: '#fff', fontWeight: 'bold' },
   textInput: {
     borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 14,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    fontSize: FontSizes.sm,
     minHeight: 100,
     textAlignVertical: 'top',
   },
   signatureContainer: {
     borderWidth: 1,
     borderColor: '#dee2e6',
-    borderRadius: 8,
+    borderRadius: BorderRadius.md,
     overflow: 'hidden',
-    height: 300,   // tall enough
+    height: 300,
     width: '100%',
   },
-  
-  
   mediaButton: {
-    padding: 12,
-    borderRadius: 8,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   buttonText: { color: '#fff', fontWeight: 'bold' },
-  mediaStatus: { fontSize: 12, color: '#28a745', fontStyle: 'italic' },
+  mediaStatus: { fontSize: FontSizes.xs, color: '#28a745', fontStyle: 'italic' },
   submitButton: {
-    padding: 16,
-    borderRadius: 8,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: Spacing.md,
   },
-  submitButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  submitButtonText: { color: '#fff', fontWeight: 'bold', fontSize: FontSizes.md },
 });
 
 export default ServiceRequestDetailsScreen;
