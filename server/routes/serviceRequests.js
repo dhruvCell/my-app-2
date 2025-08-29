@@ -53,7 +53,20 @@ router.put('/:id', authenticate, async (req, res) => {
   const { comments, status, signature, audioFeedback, videoFeedback } = req.body;
 
   try {
-    const serviceRequest = await ServiceRequest.findByIdAndUpdate(
+    // First find the service request to check ownership
+    const serviceRequest = await ServiceRequest.findById(req.params.id);
+    
+    if (!serviceRequest) {
+      return res.status(404).json({ message: 'Service request not found' });
+    }
+
+    // Check if the authenticated user is the creator of the service request
+    if (serviceRequest.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Access denied. You can only update service requests you created.' });
+    }
+
+    // Proceed with the update
+    const updatedServiceRequest = await ServiceRequest.findByIdAndUpdate(
       req.params.id,
       {
         comments,
@@ -66,11 +79,7 @@ router.put('/:id', authenticate, async (req, res) => {
       { new: true }
     );
 
-    if (!serviceRequest) {
-      return res.status(404).json({ message: 'Service request not found' });
-    }
-
-    res.status(200).json(serviceRequest);
+    res.status(200).json(updatedServiceRequest);
   } catch (error) {
     res.status(500).json({ message: 'Error updating service request', error });
   }

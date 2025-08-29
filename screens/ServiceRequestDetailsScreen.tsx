@@ -124,6 +124,11 @@ const ServiceRequestDetailsScreen: React.FC = () => {
           text1: 'Service request updated successfully!',
         });
         navigation.navigate('Home'); // Redirect to the list page
+      } else if (response.status === 403) {
+        Toast.show({
+          type: 'error',
+          text1: 'You do not have permission to update this service request.',
+        });
       } else {
         Alert.alert('Error', data.message || 'Failed to update service request');
       }
