@@ -267,6 +267,8 @@ const ServiceRequestDetailsScreen: React.FC = () => {
           box-shadow: none; 
           border: none; 
           height: 100%;
+          margin: 0;
+          padding: 0;
         }
         .m-signature-pad--body {
           border: none;
@@ -274,21 +276,34 @@ const ServiceRequestDetailsScreen: React.FC = () => {
         }
         .m-signature-pad--footer {
           display: flex !important; 
-          justify-content: space-between;
-          padding: 8px;
+          justify-content: center;
+          align-items: center;
+          gap: 20px;
+          padding: 1rem;
           height: 20%;
           background-color: #f8f9fa;
+          margin-left: -3.5rem;
         }
         .m-signature-pad--footer button {
-          padding: 8px 16px;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-          background-color: white;
+          padding: 10px 20px;
+          border: none;
+          border-radius: 6px;
+          font-weight: bold;
           cursor: pointer;
+          transition: background-color 0.2s ease;
         }
-        .m-signature-pad--footer button:hover {
-          background-color: #e9ecef;
+        .m-signature-pad--footer button:first-child {
+          background-color: #dc3545;
+          color: white;
         }
+        .m-signature-pad--footer button:first-child:hover {
+          background-color: #c82333;
+        }
+        .m-signature-pad--footer button:last-child {
+          background-color: #28a745;
+          color: white;
+        }
+        .m-signature-pad--footer button:last-child:hover {
         body,html { width: 100%; height: 100%; margin:0; }
         canvas {
           border-radius: 8px;
@@ -303,18 +318,7 @@ const ServiceRequestDetailsScreen: React.FC = () => {
     />
   </View>
 
-  <TouchableOpacity
-    onPress={handleClear}
-    style={{
-      backgroundColor: colors.error,
-      padding: 8,
-      borderRadius: 4,
-      marginTop: 8,
-      alignSelf: 'flex-start',
-    }}
-  >
-    <Text style={{ color: '#fff', fontSize: 12 }}>Clear Signature</Text>
-  </TouchableOpacity>
+  
 
   {signature ? (
     <View style={{ marginTop: 10 }}>
