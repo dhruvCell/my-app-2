@@ -40,7 +40,8 @@ router.post('/', authenticate, async (req, res) => {
 // Fetch all service requests
 router.get('/', authenticate, async (req, res) => {
   try {
-    const serviceRequests = await ServiceRequest.find({ createdBy: req.user.id });
+    const serviceRequests = await ServiceRequest.find({})
+      .populate('createdBy', 'name'); // Populate createdBy field with user name
     res.status(200).json(serviceRequests);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching service requests', error });

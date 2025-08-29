@@ -18,6 +18,9 @@ interface ServiceRequest {
   assignedTo: string;
   status: string;
   createdAt: string;
+  createdBy: {
+    name: string;
+  };
 }
 
 const ServiceRequestList = () => {
@@ -37,7 +40,8 @@ const ServiceRequestList = () => {
     request.assignedTo.toLowerCase().includes(searchQuery.toLowerCase()) ||
     request.phone.toLowerCase().includes(searchQuery.toLowerCase()) ||
     request.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    request.status.toLowerCase().includes(searchQuery.toLowerCase())
+    request.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    request.createdBy?.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleServiceRequestPress = (serviceRequest: ServiceRequest) => {
@@ -193,15 +197,15 @@ const ServiceRequestList = () => {
         
         {/* Third Row: Schedule */}
         <View style={styles.detailRow}>
-          <View style={[styles.detailItem, styles.fullWidthItemLarge]}>
-            <Icon name="access-time" size={16} color={colors.textSecondary} />
-            <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Scheduled:</Text>
-            <Text style={[styles.detailValue, { color: colors.text }]}>
-              {new Date(item.scheduledDateTime).toLocaleString()}
+        <View style={[styles.detailItem, styles.fullWidthItemLarge]}>
+            <Icon name="person" size={16} color={colors.textSecondary} />
+            <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Created By:</Text>
+            <Text style={[styles.detailValue, { color: colors.text }]} numberOfLines={1}>
+              {item.createdBy?.name || 'Unknown'}
             </Text>
           </View>
-        </View>
       </View>
+        </View>
     </TouchableOpacity>
   );
 
