@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../contexts/ThemeContext';
-import { useLanguage } from '../contexts/LanguageContext';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import TopBar from '../components/TopBar';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { lightColors, Spacing, BorderRadius, FontSizes, Shadows, Gradients } from '../styles/theme';
+import TopBar from '../components/TopBar';
+import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
+import { useTheme } from '../contexts/ThemeContext';
+import { BorderRadius, FontSizes, lightColors, Shadows, Spacing } from '../styles/theme';
 
 type RootStackParamList = {
   Home: undefined;
@@ -93,18 +93,36 @@ const ProfileScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.actionsGrid}>
-            {quickActions.map((action, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.actionButton}
-                onPress={action.action}
-              >
-                <View style={styles.actionIcon}>
-                <Icon name={action.icon} size={24} color={colors.primary} />
-                </View>
-                <Text style={styles.actionLabel}>{action.label}</Text>
-              </TouchableOpacity>
-            ))}
+            {/* First row with two actions */}
+            <View style={styles.actionsRow}>
+              {quickActions.slice(0, 2).map((action, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.actionButton}
+                  onPress={action.action}
+                >
+                  <View style={styles.actionIcon}>
+                    <Icon name={action.icon} size={24} color={colors.primary} />
+                  </View>
+                  <Text style={styles.actionLabel}>{action.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {/* Second row with two actions */}
+            <View style={styles.actionsRow}>
+              {quickActions.slice(2, 4).map((action, index) => (
+                <TouchableOpacity
+                  key={index + 2}
+                  style={styles.actionButton}
+                  onPress={action.action}
+                >
+                  <View style={styles.actionIcon}>
+                    <Icon name={action.icon} size={24} color={colors.primary} />
+                  </View>
+                  <Text style={styles.actionLabel}>{action.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
         </View>
 
@@ -268,13 +286,15 @@ const getStyles = (colors: typeof lightColors) => StyleSheet.create({
     marginBottom: Spacing.md,
   },
   actionsGrid: {
+    gap: Spacing.md,
+  },
+  actionsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'space-between',
     gap: Spacing.md,
   },
   actionButton: {
-    width: '48%',
+    flex: 1,
     backgroundColor: colors.surface,
     padding: Spacing.md,
     borderRadius: BorderRadius.md,
