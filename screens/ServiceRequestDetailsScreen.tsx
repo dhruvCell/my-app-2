@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 // import SignatureCapture from 'react-native-signature-capture';
@@ -118,7 +119,10 @@ const ServiceRequestDetailsScreen: React.FC = () => {
       const data = await response.json();
 
       if (response.ok) {
-        Alert.alert('Success', 'Service request updated successfully!');
+        Toast.show({
+          type: 'success',
+          text1: 'Service request updated successfully!',
+        });
         navigation.navigate('Home'); // Redirect to the list page
       } else {
         Alert.alert('Error', data.message || 'Failed to update service request');

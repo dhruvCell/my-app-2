@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useTheme } from '../contexts/ThemeContext';
-import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 type RootStackParamList = {
   Home: undefined;
@@ -52,7 +52,7 @@ const TopBar = () => {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.leftSection}>
-        <Text style={[styles.logo, { color: colors.primary }]}>MyApp</Text>
+        <Text style={[styles.logo, { color: colors.primary }]}>ElectroLab</Text>
       </View>
       
       <View style={styles.rightSection}>
